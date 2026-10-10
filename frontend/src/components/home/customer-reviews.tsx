@@ -13,7 +13,7 @@ export function CustomerReviews({ reviews }: { reviews: Review[] }) {
         {reviews.map((review) => (
           <article
             key={review.id}
-            className="rounded-sm border border-border bg-card p-6 shadow-sm"
+            className="rounded-sm border border-border/70 bg-card p-6 shadow-[0_12px_35px_rgba(45,23,32,0.06)] transition-transform duration-300 hover:-translate-y-1"
           >
             <div className="mb-4 flex items-center gap-3">
               {review.authorPhoto && (

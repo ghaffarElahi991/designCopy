@@ -1,18 +1,20 @@
 @import "tailwindcss";
 
 :root {
-  --background: #fff8f3;
-  --foreground: #2d2d2d;
-  --muted: #6b6b6b;
-  --blush: #f8d7da;
-  --rose: #e8a0bf;
-  --cream: #fff8f3;
-  --beige: #f5e6d3;
-  --ivory: #faf7f2;
-  --gold: #d4af37;
-  --champagne: #e5c07b;
-  --card: #ffffff;
-  --border: #f0e4d8;
+  --background: #fbf7f5;
+  --foreground: #2d1720;
+  --muted: #75636a;
+  --blush: #ead7de;
+  --rose: #9b4965;
+  --cream: #fff9f7;
+  --beige: #ede1df;
+  --ivory: #f7f0ed;
+  --gold: #8a5d35;
+  --champagne: #d6b58a;
+  --plum: #5b3042;
+  --silk: #f3e6e9;
+  --card: #fffdfc;
+  --border: #a28793;
 }
 
 @theme inline {
@@ -26,6 +28,8 @@
   --color-ivory: var(--ivory);
   --color-gold: var(--gold);
   --color-champagne: var(--champagne);
+  --color-plum: var(--plum);
+  --color-silk: var(--silk);
   --color-card: var(--card);
   --color-border: var(--border);
   --font-sans: var(--font-inter);
@@ -36,6 +40,11 @@ body {
   background: var(--background);
   color: var(--foreground);
   font-family: var(--font-inter), system-ui, sans-serif;
+}
+
+::selection {
+  background: var(--blush);
+  color: var(--foreground);
 }
 
 h1,
@@ -60,4 +69,30 @@ h6 {
 
 .animate-fade-in {
   animation: fade-in 0.5s ease-out forwards;
+}
+
+@keyframes product-reveal {
+  from { opacity: 0; transform: translateY(18px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes product-image-enter {
+  from { opacity: 0; transform: scale(1.025); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+@keyframes quantity-pop {
+  0% { opacity: 0.65; transform: scale(0.82); }
+  60% { opacity: 1; transform: scale(1.12); }
+  100% { opacity: 1; transform: scale(1); }
+}
+
+.product-reveal { animation: product-reveal 0.7s cubic-bezier(0.22, 1, 0.36, 1) both; }
+.product-reveal-delay-1 { animation-delay: 90ms; }
+.product-reveal-delay-2 { animation-delay: 180ms; }
+.product-image-enter { animation: product-image-enter 0.55s ease-out both; }
+.quantity-value { animation: quantity-pop 0.2s ease-out both; }
+
+@media (prefers-reduced-motion: reduce) {
+  .product-reveal, .product-image-enter, .quantity-value { animation: none; }
 }

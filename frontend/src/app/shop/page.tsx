@@ -13,7 +13,7 @@ import { Button } from "@/components/ui/button";
 import type { Category } from "@/lib/types";
 import type { PaginatedProducts } from "@/lib/api";
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000/api";
+const API_URL = process.env.NEXT_PUBLIC_API_URL || "/api";
 
 function ShopContent() {
   const router = useRouter();
@@ -182,10 +182,10 @@ function ShopContent() {
   return (
     <div className="min-h-screen">
       {/* Hero */}
-      <section className="relative overflow-hidden border-b border-border/60 bg-gradient-to-b from-ivory via-cream to-background">
-        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_top,rgba(212,175,55,0.08),transparent_55%)]" />
+      <section className="relative overflow-hidden border-b border-border/60 bg-gradient-to-b from-silk via-ivory to-background">
+        <div className="pointer-events-none absolute left-1/2 top-0 h-40 w-96 -translate-x-1/2 rounded-full bg-rose/10 blur-3xl" />
         <div className="relative mx-auto max-w-7xl px-4 py-14 text-center sm:px-6 sm:py-16 lg:px-8">
-          <p className="text-xs uppercase tracking-[0.35em] text-muted">Luxe Fashion</p>
+          <p className="text-xs uppercase tracking-[0.35em] text-gold">Silk Shadow</p>
           <h1 className="mt-3 font-serif text-3xl tracking-tight sm:text-4xl lg:text-5xl">
             {pageTitle}
           </h1>
@@ -212,7 +212,7 @@ function ShopContent() {
       />
 
       {/* Toolbar */}
-      <div className="sticky top-16 z-20 border-b border-border/50 bg-background/90 backdrop-blur-md">
+      <div className="sticky top-[4.5rem] z-20 border-b border-border/50 bg-background/90 backdrop-blur-md">
         <div className="mx-auto max-w-7xl space-y-3 px-4 py-3 sm:px-6 lg:px-8">
           <div className="flex flex-wrap items-center justify-between gap-3">
             <p className="text-sm text-muted">

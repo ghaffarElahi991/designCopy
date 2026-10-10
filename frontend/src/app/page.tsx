@@ -17,8 +17,8 @@ export default async function HomePage() {
   try {
     const [categoriesRes, newRes, bestRes, reviewsRes] = await Promise.all([
       getShopCategories(),
-      getProducts({ newArrivals: "true", limit: "8" }),
-      getProducts({ bestSellers: "true", limit: "8" }),
+      getProducts({ newArrivals: "true", limit: "10" }),
+      getProducts({ bestSellers: "true", limit: "10" }),
       getReviews(),
     ]);
     shopCategories = categoriesRes;

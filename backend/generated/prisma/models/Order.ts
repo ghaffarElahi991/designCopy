@@ -65,6 +65,8 @@ export type OrderMinAggregateOutputType = {
   paymentMethod: $Enums.PaymentMethod | null
   paymentStatus: $Enums.PaymentStatus | null
   stripeSessionId: string | null
+  trackingToken: string | null
+  trackingUrl: string | null
   stripePaymentIntentId: string | null
   orderNotes: string | null
   status: $Enums.OrderStatus | null
@@ -98,6 +100,8 @@ export type OrderMaxAggregateOutputType = {
   paymentMethod: $Enums.PaymentMethod | null
   paymentStatus: $Enums.PaymentStatus | null
   stripeSessionId: string | null
+  trackingToken: string | null
+  trackingUrl: string | null
   stripePaymentIntentId: string | null
   orderNotes: string | null
   status: $Enums.OrderStatus | null
@@ -131,6 +135,8 @@ export type OrderCountAggregateOutputType = {
   paymentMethod: number
   paymentStatus: number
   stripeSessionId: number
+  trackingToken: number
+  trackingUrl: number
   stripePaymentIntentId: number
   orderNotes: number
   status: number
@@ -184,6 +190,8 @@ export type OrderMinAggregateInputType = {
   paymentMethod?: true
   paymentStatus?: true
   stripeSessionId?: true
+  trackingToken?: true
+  trackingUrl?: true
   stripePaymentIntentId?: true
   orderNotes?: true
   status?: true
@@ -217,6 +225,8 @@ export type OrderMaxAggregateInputType = {
   paymentMethod?: true
   paymentStatus?: true
   stripeSessionId?: true
+  trackingToken?: true
+  trackingUrl?: true
   stripePaymentIntentId?: true
   orderNotes?: true
   status?: true
@@ -250,6 +260,8 @@ export type OrderCountAggregateInputType = {
   paymentMethod?: true
   paymentStatus?: true
   stripeSessionId?: true
+  trackingToken?: true
+  trackingUrl?: true
   stripePaymentIntentId?: true
   orderNotes?: true
   status?: true
@@ -370,6 +382,8 @@ export type OrderGroupByOutputType = {
   paymentMethod: $Enums.PaymentMethod
   paymentStatus: $Enums.PaymentStatus
   stripeSessionId: string | null
+  trackingToken: string
+  trackingUrl: string | null
   stripePaymentIntentId: string | null
   orderNotes: string | null
   status: $Enums.OrderStatus
@@ -426,6 +440,8 @@ export type OrderWhereInput = {
   paymentMethod?: Prisma.EnumPaymentMethodFilter<"Order"> | $Enums.PaymentMethod
   paymentStatus?: Prisma.EnumPaymentStatusFilter<"Order"> | $Enums.PaymentStatus
   stripeSessionId?: Prisma.StringNullableFilter<"Order"> | string | null
+  trackingToken?: Prisma.StringFilter<"Order"> | string
+  trackingUrl?: Prisma.StringNullableFilter<"Order"> | string | null
   stripePaymentIntentId?: Prisma.StringNullableFilter<"Order"> | string | null
   orderNotes?: Prisma.StringNullableFilter<"Order"> | string | null
   status?: Prisma.EnumOrderStatusFilter<"Order"> | $Enums.OrderStatus
@@ -461,6 +477,8 @@ export type OrderOrderByWithRelationInput = {
   paymentMethod?: Prisma.SortOrder
   paymentStatus?: Prisma.SortOrder
   stripeSessionId?: Prisma.SortOrderInput | Prisma.SortOrder
+  trackingToken?: Prisma.SortOrder
+  trackingUrl?: Prisma.SortOrderInput | Prisma.SortOrder
   stripePaymentIntentId?: Prisma.SortOrderInput | Prisma.SortOrder
   orderNotes?: Prisma.SortOrderInput | Prisma.SortOrder
   status?: Prisma.SortOrder
@@ -479,6 +497,7 @@ export type OrderWhereUniqueInput = Prisma.AtLeast<{
   id?: number
   orderNumber?: string
   stripeSessionId?: string
+  trackingToken?: string
   AND?: Prisma.OrderWhereInput | Prisma.OrderWhereInput[]
   OR?: Prisma.OrderWhereInput[]
   NOT?: Prisma.OrderWhereInput | Prisma.OrderWhereInput[]
@@ -499,6 +518,7 @@ export type OrderWhereUniqueInput = Prisma.AtLeast<{
   billingPostalCode?: Prisma.StringNullableFilter<"Order"> | string | null
   paymentMethod?: Prisma.EnumPaymentMethodFilter<"Order"> | $Enums.PaymentMethod
   paymentStatus?: Prisma.EnumPaymentStatusFilter<"Order"> | $Enums.PaymentStatus
+  trackingUrl?: Prisma.StringNullableFilter<"Order"> | string | null
   stripePaymentIntentId?: Prisma.StringNullableFilter<"Order"> | string | null
   orderNotes?: Prisma.StringNullableFilter<"Order"> | string | null
   status?: Prisma.EnumOrderStatusFilter<"Order"> | $Enums.OrderStatus
@@ -511,7 +531,7 @@ export type OrderWhereUniqueInput = Prisma.AtLeast<{
   updatedAt?: Prisma.DateTimeFilter<"Order"> | Date | string
   user?: Prisma.XOR<Prisma.UserNullableScalarRelationFilter, Prisma.UserWhereInput> | null
   items?: Prisma.OrderItemListRelationFilter
-}, "id" | "orderNumber" | "stripeSessionId">
+}, "id" | "orderNumber" | "stripeSessionId" | "trackingToken">
 
 export type OrderOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
@@ -534,6 +554,8 @@ export type OrderOrderByWithAggregationInput = {
   paymentMethod?: Prisma.SortOrder
   paymentStatus?: Prisma.SortOrder
   stripeSessionId?: Prisma.SortOrderInput | Prisma.SortOrder
+  trackingToken?: Prisma.SortOrder
+  trackingUrl?: Prisma.SortOrderInput | Prisma.SortOrder
   stripePaymentIntentId?: Prisma.SortOrderInput | Prisma.SortOrder
   orderNotes?: Prisma.SortOrderInput | Prisma.SortOrder
   status?: Prisma.SortOrder
@@ -575,6 +597,8 @@ export type OrderScalarWhereWithAggregatesInput = {
   paymentMethod?: Prisma.EnumPaymentMethodWithAggregatesFilter<"Order"> | $Enums.PaymentMethod
   paymentStatus?: Prisma.EnumPaymentStatusWithAggregatesFilter<"Order"> | $Enums.PaymentStatus
   stripeSessionId?: Prisma.StringNullableWithAggregatesFilter<"Order"> | string | null
+  trackingToken?: Prisma.StringWithAggregatesFilter<"Order"> | string
+  trackingUrl?: Prisma.StringNullableWithAggregatesFilter<"Order"> | string | null
   stripePaymentIntentId?: Prisma.StringNullableWithAggregatesFilter<"Order"> | string | null
   orderNotes?: Prisma.StringNullableWithAggregatesFilter<"Order"> | string | null
   status?: Prisma.EnumOrderStatusWithAggregatesFilter<"Order"> | $Enums.OrderStatus
@@ -606,6 +630,8 @@ export type OrderCreateInput = {
   paymentMethod?: $Enums.PaymentMethod
   paymentStatus?: $Enums.PaymentStatus
   stripeSessionId?: string | null
+  trackingToken?: string
+  trackingUrl?: string | null
   stripePaymentIntentId?: string | null
   orderNotes?: string | null
   status?: $Enums.OrderStatus
@@ -641,6 +667,8 @@ export type OrderUncheckedCreateInput = {
   paymentMethod?: $Enums.PaymentMethod
   paymentStatus?: $Enums.PaymentStatus
   stripeSessionId?: string | null
+  trackingToken?: string
+  trackingUrl?: string | null
   stripePaymentIntentId?: string | null
   orderNotes?: string | null
   status?: $Enums.OrderStatus
@@ -673,6 +701,8 @@ export type OrderUpdateInput = {
   paymentMethod?: Prisma.EnumPaymentMethodFieldUpdateOperationsInput | $Enums.PaymentMethod
   paymentStatus?: Prisma.EnumPaymentStatusFieldUpdateOperationsInput | $Enums.PaymentStatus
   stripeSessionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  trackingToken?: Prisma.StringFieldUpdateOperationsInput | string
+  trackingUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   stripePaymentIntentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   orderNotes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumOrderStatusFieldUpdateOperationsInput | $Enums.OrderStatus
@@ -708,6 +738,8 @@ export type OrderUncheckedUpdateInput = {
   paymentMethod?: Prisma.EnumPaymentMethodFieldUpdateOperationsInput | $Enums.PaymentMethod
   paymentStatus?: Prisma.EnumPaymentStatusFieldUpdateOperationsInput | $Enums.PaymentStatus
   stripeSessionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  trackingToken?: Prisma.StringFieldUpdateOperationsInput | string
+  trackingUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   stripePaymentIntentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   orderNotes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumOrderStatusFieldUpdateOperationsInput | $Enums.OrderStatus
@@ -742,6 +774,8 @@ export type OrderCreateManyInput = {
   paymentMethod?: $Enums.PaymentMethod
   paymentStatus?: $Enums.PaymentStatus
   stripeSessionId?: string | null
+  trackingToken?: string
+  trackingUrl?: string | null
   stripePaymentIntentId?: string | null
   orderNotes?: string | null
   status?: $Enums.OrderStatus
@@ -773,6 +807,8 @@ export type OrderUpdateManyMutationInput = {
   paymentMethod?: Prisma.EnumPaymentMethodFieldUpdateOperationsInput | $Enums.PaymentMethod
   paymentStatus?: Prisma.EnumPaymentStatusFieldUpdateOperationsInput | $Enums.PaymentStatus
   stripeSessionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  trackingToken?: Prisma.StringFieldUpdateOperationsInput | string
+  trackingUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   stripePaymentIntentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   orderNotes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumOrderStatusFieldUpdateOperationsInput | $Enums.OrderStatus
@@ -806,6 +842,8 @@ export type OrderUncheckedUpdateManyInput = {
   paymentMethod?: Prisma.EnumPaymentMethodFieldUpdateOperationsInput | $Enums.PaymentMethod
   paymentStatus?: Prisma.EnumPaymentStatusFieldUpdateOperationsInput | $Enums.PaymentStatus
   stripeSessionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  trackingToken?: Prisma.StringFieldUpdateOperationsInput | string
+  trackingUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   stripePaymentIntentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   orderNotes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumOrderStatusFieldUpdateOperationsInput | $Enums.OrderStatus
@@ -849,6 +887,8 @@ export type OrderCountOrderByAggregateInput = {
   paymentMethod?: Prisma.SortOrder
   paymentStatus?: Prisma.SortOrder
   stripeSessionId?: Prisma.SortOrder
+  trackingToken?: Prisma.SortOrder
+  trackingUrl?: Prisma.SortOrder
   stripePaymentIntentId?: Prisma.SortOrder
   orderNotes?: Prisma.SortOrder
   status?: Prisma.SortOrder
@@ -891,6 +931,8 @@ export type OrderMaxOrderByAggregateInput = {
   paymentMethod?: Prisma.SortOrder
   paymentStatus?: Prisma.SortOrder
   stripeSessionId?: Prisma.SortOrder
+  trackingToken?: Prisma.SortOrder
+  trackingUrl?: Prisma.SortOrder
   stripePaymentIntentId?: Prisma.SortOrder
   orderNotes?: Prisma.SortOrder
   status?: Prisma.SortOrder
@@ -924,6 +966,8 @@ export type OrderMinOrderByAggregateInput = {
   paymentMethod?: Prisma.SortOrder
   paymentStatus?: Prisma.SortOrder
   stripeSessionId?: Prisma.SortOrder
+  trackingToken?: Prisma.SortOrder
+  trackingUrl?: Prisma.SortOrder
   stripePaymentIntentId?: Prisma.SortOrder
   orderNotes?: Prisma.SortOrder
   status?: Prisma.SortOrder
@@ -1037,6 +1081,8 @@ export type OrderCreateWithoutUserInput = {
   paymentMethod?: $Enums.PaymentMethod
   paymentStatus?: $Enums.PaymentStatus
   stripeSessionId?: string | null
+  trackingToken?: string
+  trackingUrl?: string | null
   stripePaymentIntentId?: string | null
   orderNotes?: string | null
   status?: $Enums.OrderStatus
@@ -1070,6 +1116,8 @@ export type OrderUncheckedCreateWithoutUserInput = {
   paymentMethod?: $Enums.PaymentMethod
   paymentStatus?: $Enums.PaymentStatus
   stripeSessionId?: string | null
+  trackingToken?: string
+  trackingUrl?: string | null
   stripePaymentIntentId?: string | null
   orderNotes?: string | null
   status?: $Enums.OrderStatus
@@ -1133,6 +1181,8 @@ export type OrderScalarWhereInput = {
   paymentMethod?: Prisma.EnumPaymentMethodFilter<"Order"> | $Enums.PaymentMethod
   paymentStatus?: Prisma.EnumPaymentStatusFilter<"Order"> | $Enums.PaymentStatus
   stripeSessionId?: Prisma.StringNullableFilter<"Order"> | string | null
+  trackingToken?: Prisma.StringFilter<"Order"> | string
+  trackingUrl?: Prisma.StringNullableFilter<"Order"> | string | null
   stripePaymentIntentId?: Prisma.StringNullableFilter<"Order"> | string | null
   orderNotes?: Prisma.StringNullableFilter<"Order"> | string | null
   status?: Prisma.EnumOrderStatusFilter<"Order"> | $Enums.OrderStatus
@@ -1164,6 +1214,8 @@ export type OrderCreateWithoutItemsInput = {
   paymentMethod?: $Enums.PaymentMethod
   paymentStatus?: $Enums.PaymentStatus
   stripeSessionId?: string | null
+  trackingToken?: string
+  trackingUrl?: string | null
   stripePaymentIntentId?: string | null
   orderNotes?: string | null
   status?: $Enums.OrderStatus
@@ -1198,6 +1250,8 @@ export type OrderUncheckedCreateWithoutItemsInput = {
   paymentMethod?: $Enums.PaymentMethod
   paymentStatus?: $Enums.PaymentStatus
   stripeSessionId?: string | null
+  trackingToken?: string
+  trackingUrl?: string | null
   stripePaymentIntentId?: string | null
   orderNotes?: string | null
   status?: $Enums.OrderStatus
@@ -1245,6 +1299,8 @@ export type OrderUpdateWithoutItemsInput = {
   paymentMethod?: Prisma.EnumPaymentMethodFieldUpdateOperationsInput | $Enums.PaymentMethod
   paymentStatus?: Prisma.EnumPaymentStatusFieldUpdateOperationsInput | $Enums.PaymentStatus
   stripeSessionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  trackingToken?: Prisma.StringFieldUpdateOperationsInput | string
+  trackingUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   stripePaymentIntentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   orderNotes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumOrderStatusFieldUpdateOperationsInput | $Enums.OrderStatus
@@ -1279,6 +1335,8 @@ export type OrderUncheckedUpdateWithoutItemsInput = {
   paymentMethod?: Prisma.EnumPaymentMethodFieldUpdateOperationsInput | $Enums.PaymentMethod
   paymentStatus?: Prisma.EnumPaymentStatusFieldUpdateOperationsInput | $Enums.PaymentStatus
   stripeSessionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  trackingToken?: Prisma.StringFieldUpdateOperationsInput | string
+  trackingUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   stripePaymentIntentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   orderNotes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumOrderStatusFieldUpdateOperationsInput | $Enums.OrderStatus
@@ -1311,6 +1369,8 @@ export type OrderCreateManyUserInput = {
   paymentMethod?: $Enums.PaymentMethod
   paymentStatus?: $Enums.PaymentStatus
   stripeSessionId?: string | null
+  trackingToken?: string
+  trackingUrl?: string | null
   stripePaymentIntentId?: string | null
   orderNotes?: string | null
   status?: $Enums.OrderStatus
@@ -1342,6 +1402,8 @@ export type OrderUpdateWithoutUserInput = {
   paymentMethod?: Prisma.EnumPaymentMethodFieldUpdateOperationsInput | $Enums.PaymentMethod
   paymentStatus?: Prisma.EnumPaymentStatusFieldUpdateOperationsInput | $Enums.PaymentStatus
   stripeSessionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  trackingToken?: Prisma.StringFieldUpdateOperationsInput | string
+  trackingUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   stripePaymentIntentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   orderNotes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumOrderStatusFieldUpdateOperationsInput | $Enums.OrderStatus
@@ -1375,6 +1437,8 @@ export type OrderUncheckedUpdateWithoutUserInput = {
   paymentMethod?: Prisma.EnumPaymentMethodFieldUpdateOperationsInput | $Enums.PaymentMethod
   paymentStatus?: Prisma.EnumPaymentStatusFieldUpdateOperationsInput | $Enums.PaymentStatus
   stripeSessionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  trackingToken?: Prisma.StringFieldUpdateOperationsInput | string
+  trackingUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   stripePaymentIntentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   orderNotes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumOrderStatusFieldUpdateOperationsInput | $Enums.OrderStatus
@@ -1408,6 +1472,8 @@ export type OrderUncheckedUpdateManyWithoutUserInput = {
   paymentMethod?: Prisma.EnumPaymentMethodFieldUpdateOperationsInput | $Enums.PaymentMethod
   paymentStatus?: Prisma.EnumPaymentStatusFieldUpdateOperationsInput | $Enums.PaymentStatus
   stripeSessionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  trackingToken?: Prisma.StringFieldUpdateOperationsInput | string
+  trackingUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   stripePaymentIntentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   orderNotes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumOrderStatusFieldUpdateOperationsInput | $Enums.OrderStatus
@@ -1472,6 +1538,8 @@ export type OrderSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
   paymentMethod?: boolean
   paymentStatus?: boolean
   stripeSessionId?: boolean
+  trackingToken?: boolean
+  trackingUrl?: boolean
   stripePaymentIntentId?: boolean
   orderNotes?: boolean
   status?: boolean
@@ -1508,6 +1576,8 @@ export type OrderSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensi
   paymentMethod?: boolean
   paymentStatus?: boolean
   stripeSessionId?: boolean
+  trackingToken?: boolean
+  trackingUrl?: boolean
   stripePaymentIntentId?: boolean
   orderNotes?: boolean
   status?: boolean
@@ -1542,6 +1612,8 @@ export type OrderSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensi
   paymentMethod?: boolean
   paymentStatus?: boolean
   stripeSessionId?: boolean
+  trackingToken?: boolean
+  trackingUrl?: boolean
   stripePaymentIntentId?: boolean
   orderNotes?: boolean
   status?: boolean
@@ -1576,6 +1648,8 @@ export type OrderSelectScalar = {
   paymentMethod?: boolean
   paymentStatus?: boolean
   stripeSessionId?: boolean
+  trackingToken?: boolean
+  trackingUrl?: boolean
   stripePaymentIntentId?: boolean
   orderNotes?: boolean
   status?: boolean
@@ -1588,7 +1662,7 @@ export type OrderSelectScalar = {
   updatedAt?: boolean
 }
 
-export type OrderOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "orderNumber" | "userId" | "customerName" | "customerEmail" | "customerPhone" | "shippingAddress" | "city" | "state" | "country" | "postalCode" | "billingSameAsShipping" | "billingAddress" | "billingCity" | "billingState" | "billingCountry" | "billingPostalCode" | "paymentMethod" | "paymentStatus" | "stripeSessionId" | "stripePaymentIntentId" | "orderNotes" | "status" | "subtotal" | "shippingCost" | "discount" | "total" | "couponCode" | "createdAt" | "updatedAt", ExtArgs["result"]["order"]>
+export type OrderOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "orderNumber" | "userId" | "customerName" | "customerEmail" | "customerPhone" | "shippingAddress" | "city" | "state" | "country" | "postalCode" | "billingSameAsShipping" | "billingAddress" | "billingCity" | "billingState" | "billingCountry" | "billingPostalCode" | "paymentMethod" | "paymentStatus" | "stripeSessionId" | "trackingToken" | "trackingUrl" | "stripePaymentIntentId" | "orderNotes" | "status" | "subtotal" | "shippingCost" | "discount" | "total" | "couponCode" | "createdAt" | "updatedAt", ExtArgs["result"]["order"]>
 export type OrderInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   user?: boolean | Prisma.Order$userArgs<ExtArgs>
   items?: boolean | Prisma.Order$itemsArgs<ExtArgs>
@@ -1628,6 +1702,8 @@ export type $OrderPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs 
     paymentMethod: $Enums.PaymentMethod
     paymentStatus: $Enums.PaymentStatus
     stripeSessionId: string | null
+    trackingToken: string
+    trackingUrl: string | null
     stripePaymentIntentId: string | null
     orderNotes: string | null
     status: $Enums.OrderStatus
@@ -2083,6 +2159,8 @@ export interface OrderFieldRefs {
   readonly paymentMethod: Prisma.FieldRef<"Order", 'PaymentMethod'>
   readonly paymentStatus: Prisma.FieldRef<"Order", 'PaymentStatus'>
   readonly stripeSessionId: Prisma.FieldRef<"Order", 'String'>
+  readonly trackingToken: Prisma.FieldRef<"Order", 'String'>
+  readonly trackingUrl: Prisma.FieldRef<"Order", 'String'>
   readonly stripePaymentIntentId: Prisma.FieldRef<"Order", 'String'>
   readonly orderNotes: Prisma.FieldRef<"Order", 'String'>
   readonly status: Prisma.FieldRef<"Order", 'OrderStatus'>

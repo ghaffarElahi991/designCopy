@@ -1,6 +1,17 @@
 import type { NextConfig } from "next";
 
+const backendApiUrl = process.env.API_URL || "http://127.0.0.1:4000/api";
+
 const nextConfig: NextConfig = {
+  allowedDevOrigins: ["168.231.126.220", "silkshadow.store", "www.silkshadow.store"],
+  async rewrites() {
+    return [
+      {
+        source: "/api/:path*",
+        destination: `${backendApiUrl}/:path*`,
+      },
+    ];
+  },
   images: {
     remotePatterns: [
       {

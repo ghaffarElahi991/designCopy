@@ -1,8 +1,12 @@
 import type { Metadata } from "next";
 import { Inter, Playfair_Display } from "next/font/google";
+import { Suspense } from "react";
 import "./globals.css";
 import { LayoutShell } from "@/components/layout/layout-shell";
 import { CartProvider } from "@/context/cart-context";
+import { WishlistProvider } from "@/context/wishlist-context";
+import { AuthProvider } from "@/context/auth-context";
+import { RouteTransitionLoader } from "@/components/ui/route-transition-loader";
 
 const inter = Inter({
   variable: "--font-inter",
@@ -15,9 +19,9 @@ const playfair = Playfair_Display({
 });
 
 export const metadata: Metadata = {
-  title: "Luxe Fashion | Elegant Women's Fashion",
+  title: "Silk Shadow | Feminine Luxury, Curated",
   description:
-    "Discover premium handbags, sandals, heels, accessories, jewelry, and beauty products. Elegance designed for every woman.",
+    "Discover Silk Shadow's curated handbags, shoes, jewelry, accessories, and beauty essentials—feminine luxury for every occasion.",
 };
 
 export default function RootLayout({
@@ -29,7 +33,14 @@ export default function RootLayout({
     <html lang="en" className={`${inter.variable} ${playfair.variable} h-full`}>
       <body className="min-h-full flex flex-col bg-background text-foreground antialiased">
         <CartProvider>
-          <LayoutShell>{children}</LayoutShell>
+          <WishlistProvider>
+            <AuthProvider>
+              <Suspense fallback={null}>
+                <RouteTransitionLoader />
+              </Suspense>
+              <LayoutShell>{children}</LayoutShell>
+            </AuthProvider>
+          </WishlistProvider>
         </CartProvider>
       </body>
     </html>

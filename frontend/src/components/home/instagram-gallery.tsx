@@ -11,10 +11,11 @@ const galleryImages = [
 
 export function InstagramGallery() {
   return (
-    <section className="bg-beige py-16">
+    <section className="border-y border-border/50 bg-silk py-16">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="mb-10 text-center">
-          <h2 className="font-serif text-3xl sm:text-4xl">@LuxeFashion</h2>
+          <p className="text-xs uppercase tracking-[0.35em] text-gold">Follow along</p>
+          <h2 className="mt-2 font-serif text-3xl sm:text-4xl">The Silk Shadow Journal</h2>
           <p className="mt-2 text-muted">Follow our style journey on Instagram</p>
         </div>
         <div className="grid grid-cols-2 gap-2 md:grid-cols-3 lg:grid-cols-6">

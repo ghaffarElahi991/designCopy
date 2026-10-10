@@ -30,7 +30,7 @@ export function WhatsAppBanner({ className = "" }: { className?: string }) {
         <Button
           asChild
           size="lg"
-          className="shrink-0 bg-[#25D366] text-white hover:bg-[#1ebe5d] shadow-md"
+          className="shrink-0 bg-[#25D366] text-foreground shadow-md hover:bg-[#1ebe5d]"
         >
           <Link href={siteContact.whatsappUrl} target="_blank" rel="noopener noreferrer">
             <MessageCircle className="h-5 w-5" />

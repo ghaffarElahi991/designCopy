@@ -60,6 +60,7 @@ export interface Review {
 }
 
 export interface CartItem {
+  stock?: number;
   productId: number;
   name: string;
   price: number;

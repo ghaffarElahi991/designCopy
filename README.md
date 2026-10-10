@@ -1,4 +1,4 @@
-# Luxe Fashion E-Commerce
+# Silk Shadow E-Commerce
 
 Premium women's fashion e-commerce platform with a **Next.js** frontend and **Node.js (Express)** backend.
 

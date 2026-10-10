@@ -1,3 +1,4 @@
+import { authenticate, type AuthRequest } from "../middleware/auth";
 import { Router } from "express";
 import { z } from "zod";
 import { prisma } from "../lib/prisma";
@@ -10,6 +11,7 @@ import {
   serializeOrder,
 } from "../lib/order-service";
 import { getStripe, isStripeEnabled } from "../lib/stripe";
+import { sendPaymentConfirmation } from "../lib/email";
 
 const router = Router();
 
@@ -20,18 +22,21 @@ router.get("/config", (_req, res) => {
   });
 });
 
-router.post("/create-checkout-session", async (req, res) => {
+router.post("/create-checkout-session", (req, res, next) => {
+  if (req.headers.authorization) return authenticate(req, res, next);
+  next();
+}, async (req: AuthRequest, res) => {
   try {
     if (!isStripeEnabled()) {
       return res.status(503).json({ error: "Card payments are not configured" });
     }
 
     const input = createOrderSchema.omit({ paymentMethod: true }).parse(req.body);
-    const { order } = await createOrder({ ...input, paymentMethod: "CARD" });
+    const { order } = await createOrder({ ...input, paymentMethod: "CARD" }, req.user?.id);
 
     try {
       const stripe = getStripe();
-      const frontendUrl = process.env.CORS_ORIGIN || "http://localhost:3000";
+      const frontendUrl = process.env.FRONTEND_URL || "http://localhost:3000";
       const session = await stripe.checkout.sessions.create({
         mode: "payment",
         success_url:
@@ -50,7 +55,7 @@ router.post("/create-checkout-session", async (req, res) => {
               currency: "usd",
               product_data: {
                 name: `Order ${order.orderNumber}`,
-                description: `${order.items.reduce((sum, item) => sum + item.quantity, 0)} item(s) from Luxe Fashion`,
+                description: `${order.items.reduce((sum, item) => sum + item.quantity, 0)} item(s) from Silk Shadow`,
               },
               unit_amount: Math.round(Number(order.total) * 100),
             },
@@ -121,11 +126,14 @@ router.get("/session", async (req, res) => {
     }
 
     if (session.payment_status === "paid" && order.paymentStatus !== "PAID") {
-      await markOrderPaid(
+      const paidOrder = await markOrderPaid(
         order.id,
         typeof session.payment_intent === "string"
           ? session.payment_intent
           : session.payment_intent?.id || null
+      );
+      void sendPaymentConfirmation(paidOrder).catch((error) =>
+        console.error("Payment confirmation email failed", error)
       );
     }
 

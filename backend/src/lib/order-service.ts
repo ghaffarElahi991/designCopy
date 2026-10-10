@@ -5,13 +5,14 @@ import { calculateShipping, generateOrderNumber } from "./order-utils";
 export const paymentMethodEnum = z.enum(["BANK_TRANSFER", "WHATSAPP", "CARD"]);
 
 export const createOrderSchema = z.object({
-  customerName: z.string().min(2),
-  customerEmail: z.string().email(),
-  customerPhone: z.string().min(6),
-  shippingAddress: z.string().min(5),
-  city: z.string().min(2),
+  customerName: z.string().trim().min(2),
+  customerEmail: z.string().trim().email(),
+  customerPhone: z.string().trim().regex(/^[+0-9().\s-]+$/, "Enter a valid phone number")
+    .refine((value) => { const digits = value.replace(/\D/g, "").length; return digits >= 7 && digits <= 15; }, "Phone number must contain 7–15 digits"),
+  shippingAddress: z.string().trim().min(5),
+  city: z.string().trim().min(2),
   state: z.string().optional(),
-  country: z.string().min(2),
+  country: z.string().trim().min(2),
   postalCode: z.string().optional(),
   billingSameAsShipping: z.boolean().default(true),
   billingAddress: z.string().optional(),
@@ -81,7 +82,7 @@ export async function restoreOrderStock(orderId: number) {
   );
 }
 
-export async function createOrder(data: CreateOrderInput) {
+export async function createOrder(data: CreateOrderInput, userId?: number) {
   const productIds = data.items.map((i) => i.productId);
   const products = await prisma.product.findMany({
     where: { id: { in: productIds } },
@@ -169,6 +170,7 @@ export async function createOrder(data: CreateOrderInput) {
     return tx.order.create({
       data: {
         orderNumber: generateOrderNumber(),
+        userId,
         customerName: data.customerName,
         customerEmail: data.customerEmail,
         customerPhone: data.customerPhone,

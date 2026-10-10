@@ -3,7 +3,7 @@ export default function AboutPage() {
     <div className="mx-auto max-w-3xl px-4 py-16 sm:px-6">
       <h1 className="font-serif text-4xl">About Us</h1>
       <p className="mt-6 leading-relaxed text-muted">
-        Luxe Fashion was founded with a simple belief: every woman deserves access to elegant,
+        Silk Shadow was founded with a simple belief: every woman deserves access to elegant,
         premium-quality fashion that makes her feel confident and beautiful. We curate handbags,
         footwear, accessories, jewelry, and beauty products from trusted artisans and brands.
       </p>

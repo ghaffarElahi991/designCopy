@@ -172,7 +172,7 @@ export function parseShopifyCsv(csvContent: string): ParsedProduct[] {
       name,
       description,
       shortDescription: shortText(description),
-      brand: clean(main.Vendor) || "Luxe Fashion",
+      brand: clean(main.Vendor) || "Silk Shadow",
       categoryName: mapCategoryName(main["Product category"], main.Type),
       type: clean(main.Type),
       tags: tagsRaw,

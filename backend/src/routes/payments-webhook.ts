@@ -3,6 +3,7 @@ import Stripe from "stripe";
 import { cancelUnpaidOrder, markOrderPaid } from "../lib/order-service";
 import { prisma } from "../lib/prisma";
 import { getStripe, getStripeWebhookSecret } from "../lib/stripe";
+import { sendPaymentConfirmation } from "../lib/email";
 
 const router = Router();
 
@@ -22,14 +23,22 @@ router.post("/", async (req, res) => {
     );
 
     switch (event.type) {
-      case "checkout.session.completed": {
+      case "checkout.session.completed":
+      case "checkout.session.async_payment_succeeded": {
         const session = event.data.object as Stripe.Checkout.Session;
+        if (session.payment_status !== "paid") break;
         const orderId = Number(session.metadata?.orderId || 0);
         if (orderId) {
-          await markOrderPaid(
+          const existingOrder = await prisma.order.findUnique({ where: { id: orderId } });
+          const paidOrder = await markOrderPaid(
             orderId,
             typeof session.payment_intent === "string" ? session.payment_intent : null
           );
+          if (existingOrder?.paymentStatus !== "PAID") {
+            void sendPaymentConfirmation(paidOrder).catch((error) =>
+              console.error("Payment confirmation email failed", error)
+            );
+          }
         }
         break;
       }

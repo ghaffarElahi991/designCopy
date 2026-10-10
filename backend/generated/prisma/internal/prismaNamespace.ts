@@ -1300,6 +1300,8 @@ export const OrderScalarFieldEnum = {
   paymentMethod: 'paymentMethod',
   paymentStatus: 'paymentStatus',
   stripeSessionId: 'stripeSessionId',
+  trackingToken: 'trackingToken',
+  trackingUrl: 'trackingUrl',
   stripePaymentIntentId: 'stripePaymentIntentId',
   orderNotes: 'orderNotes',
   status: 'status',

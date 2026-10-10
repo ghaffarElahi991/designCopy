@@ -1,6 +1,9 @@
 import type { Category, Coupon, Product, Review } from "./types";
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000/api";
+const API_URL =
+  typeof window === "undefined"
+    ? process.env.API_URL || "http://127.0.0.1:4000/api"
+    : process.env.NEXT_PUBLIC_API_URL || "/api";
 
 export interface PaginatedProducts {
   products: Product[];
@@ -99,7 +102,7 @@ export type CheckoutOrderPayload = {
   billingState?: string;
   billingCountry?: string;
   billingPostalCode?: string;
-  paymentMethod: "BANK_TRANSFER" | "WHATSAPP" | "CARD";
+  paymentMethod: "CARD";
   orderNotes?: string;
   couponCode?: string;
   items: {
@@ -115,11 +118,12 @@ export async function getPaymentConfig() {
 }
 
 export async function createStripeCheckoutSession(
-  data: Omit<CheckoutOrderPayload, "paymentMethod">
+  data: Omit<CheckoutOrderPayload, "paymentMethod">,
+  token?: string | null
 ) {
   const res = await fetch(`${API_URL}/payments/create-checkout-session`, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers: { "Content-Type": "application/json", ...(token ? { Authorization: `Bearer ${token}` } : {}) },
     body: JSON.stringify(data),
   });
 
@@ -131,12 +135,12 @@ export async function createStripeCheckoutSession(
   return res.json() as Promise<{ url: string; order: Record<string, unknown> }>;
 }
 
-export async function getPaymentSession(sessionId: string) {
+export async function getPaymentSession<TOrder = Record<string, unknown>>(sessionId: string) {
   return fetchApi<{
     sessionId: string;
     status: string | null;
     paymentStatus: string;
-    order: Record<string, unknown> | null;
+    order: TOrder | null;
   }>(`/payments/session?session_id=${encodeURIComponent(sessionId)}`);
 }
 
@@ -153,4 +157,16 @@ export async function createOrder(data: CheckoutOrderPayload) {
   }
 
   return res.json();
+}
+
+export async function subscribeToNewsletter(email: string) {
+  const res = await fetch(`${API_URL}/newsletter/subscribe`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ email }),
+  });
+  if (!res.ok) {
+    const data = await res.json().catch(() => null);
+    throw new Error(data?.error || "Unable to subscribe. Please try again.");
+  }
 }

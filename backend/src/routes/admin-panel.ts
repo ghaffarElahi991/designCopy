@@ -1,3 +1,4 @@
+import { randomBytes } from "node:crypto";
 import { Router } from "express";
 import multer from "multer";
 import bcrypt from "bcryptjs";
@@ -70,6 +71,60 @@ router.post("/logout", (req, res) => {
 // Dashboard redirect
 router.get("/", requireAdminPage, (_req, res) => {
   res.redirect("/admin/products");
+});
+
+const orderStatuses = ["PENDING", "CONFIRMED", "SHIPPED", "DELIVERED", "CANCELLED"] as const;
+function orderCsrf(req: import("express").Request) {
+  const session = req.session as AdminSession & { orderCsrf?: string };
+  return session.orderCsrf ||= randomBytes(32).toString("hex");
+}
+
+router.get("/orders", requireAdminPage, async (req, res) => {
+  const search = String(req.query.search || "").trim().slice(0, 200);
+  const status = orderStatuses.find(value => value === req.query.status);
+  const page = Math.max(1, Math.min(100000, Math.floor(Number(req.query.page) || 1)));
+  const where = { ...(status ? { status } : {}), ...(search ? { OR: [
+    { orderNumber: { contains: search, mode: "insensitive" as const } },
+    { customerName: { contains: search, mode: "insensitive" as const } },
+    { customerEmail: { contains: search, mode: "insensitive" as const } },
+  ] } : {}) };
+  const [orders, total] = await Promise.all([
+    prisma.order.findMany({ where, orderBy: [{ createdAt: "desc" }, { id: "desc" }], skip: (page - 1) * 20, take: 20,
+      select: { id: true, orderNumber: true, customerName: true, customerEmail: true, userId: true,
+        paymentStatus: true, status: true, createdAt: true, total: true, trackingUrl: true } }),
+    prisma.order.count({ where }),
+  ]);
+  renderAdmin(res, "orders", { title: "Orders", adminName: (req.session as AdminSession).name,
+    orders, search, status: status || "", statuses: orderStatuses, total, page, totalPages: Math.ceil(total / 20) });
+});
+
+router.get("/orders/:id", requireAdminPage, async (req, res) => {
+  const id = Number(req.params.id);
+  if (!Number.isSafeInteger(id) || id <= 0) return res.status(404).send("Order not found");
+  const order = await prisma.order.findUnique({ where: { id }, include: { items: { include: { product: { select: { name: true, primaryImageUrl: true } } } } } });
+  if (!order) return res.status(404).send("Order not found");
+  renderAdmin(res, "order-detail", { title: order.orderNumber, adminName: (req.session as AdminSession).name,
+    order, statuses: orderStatuses, csrf: orderCsrf(req), saved: req.query.saved === "1",
+    siteUrl: process.env.FRONTEND_URL || "https://silkshadow.store" });
+});
+
+router.post("/orders/:id/tracking", requireAdminPage, async (req, res) => {
+  if (!req.body.csrf || req.body.csrf !== orderCsrf(req)) return res.status(403).send("Please reload the order page and try again.");
+  const id = Number(req.params.id);
+  const status = orderStatuses.find(value => value === req.body.status);
+  if (!Number.isSafeInteger(id) || id <= 0 || !status) return res.status(400).send("Invalid order or status");
+  const trackingUrl = String(req.body.trackingUrl || "").trim();
+  if (trackingUrl) {
+    try {
+      const url = new URL(trackingUrl);
+      if (url.protocol !== "https:" || url.username || url.password || trackingUrl.length > 2048) throw new Error();
+    } catch { return res.status(400).send("Enter a valid HTTPS courier tracking URL. Go back to correct it."); }
+  }
+  const order = await prisma.order.findUnique({ where: { id }, select: { paymentStatus: true } });
+  if (!order) return res.status(404).send("Order not found");
+  if (["SHIPPED", "DELIVERED"].includes(status) && order.paymentStatus !== "PAID") return res.status(400).send("Payment must be confirmed before marking an order shipped or delivered.");
+  await prisma.order.update({ where: { id }, data: { trackingUrl: trackingUrl || null, status } });
+  res.redirect(`/admin/orders/${id}?saved=1`);
 });
 
 // Products list

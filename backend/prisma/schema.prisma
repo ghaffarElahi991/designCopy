@@ -117,6 +117,8 @@ model Order {
   paymentMethod         PaymentMethod @default(BANK_TRANSFER)
   paymentStatus         PaymentStatus @default(PENDING)
   stripeSessionId       String?       @unique
+  trackingToken         String        @unique @default(uuid())
+  trackingUrl           String?
   stripePaymentIntentId String?
   orderNotes            String?
   status                OrderStatus   @default(PENDING)

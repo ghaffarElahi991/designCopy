@@ -6,10 +6,12 @@ import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import { ChevronDown, Heart, Menu, Search, ShoppingBag, User, X } from "lucide-react";
 import { useCart } from "@/context/cart-context";
+import { useWishlist } from "@/context/wishlist-context";
+import { useAuth } from "@/context/auth-context";
 import type { NavItem } from "@/lib/types";
 import { cn } from "@/lib/utils";
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000/api";
+const API_URL = process.env.NEXT_PUBLIC_API_URL || "/api";
 
 const FALLBACK_NAV: NavItem[] = [
   { id: 0, label: "Shop", href: "/shop", tagSlug: null, sortOrder: 0, children: [] },
@@ -60,7 +62,7 @@ function NavDropdown({ item }: { item: NavItem }) {
                       <Link
                         key={leaf.id}
                         href={leaf.href}
-                        className="block px-3 py-2 text-sm text-foreground hover:bg-beige"
+                        className="block px-3 py-2 text-sm text-foreground hover:bg-blush/60"
                         onClick={() => setOpen(false)}
                       >
                         {leaf.label}
@@ -72,7 +74,7 @@ function NavDropdown({ item }: { item: NavItem }) {
                 <Link
                   key={child.id}
                   href={child.href}
-                  className="block px-3 py-2 text-sm text-foreground hover:bg-beige"
+                  className="block px-3 py-2 text-sm text-foreground hover:bg-blush/60"
                   onClick={() => setOpen(false)}
                 >
                   {child.label}
@@ -95,7 +97,7 @@ function MobileNavSection({ item, onClose }: { item: NavItem; onClose: () => voi
       <Link
         href={item.href}
         onClick={onClose}
-        className="block rounded-sm px-4 py-3 text-sm tracking-wide text-foreground hover:bg-beige"
+        className="block rounded-sm px-4 py-3 text-sm tracking-wide text-foreground hover:bg-blush/60"
       >
         {item.label}
       </Link>
@@ -140,7 +142,7 @@ function MobileNavSection({ item, onClose }: { item: NavItem; onClose: () => voi
                       key={leaf.id}
                       href={leaf.href}
                       onClick={onClose}
-                      className="block px-8 py-2.5 text-sm text-foreground hover:bg-beige"
+                      className="block px-8 py-2.5 text-sm text-foreground hover:bg-blush/60"
                     >
                       {leaf.label}
                     </Link>
@@ -152,7 +154,7 @@ function MobileNavSection({ item, onClose }: { item: NavItem; onClose: () => voi
                 key={child.id}
                 href={child.href}
                 onClick={onClose}
-                className="block px-6 py-2.5 text-sm text-foreground hover:bg-beige"
+                className="block px-6 py-2.5 text-sm text-foreground hover:bg-blush/60"
               >
                 {child.label}
               </Link>
@@ -201,7 +203,7 @@ function MobileMenu({
 
       <div
         className={cn(
-          "fixed inset-y-0 right-0 z-[90] flex w-[min(100vw-3rem,20rem)] flex-col bg-ivory shadow-2xl transition-transform duration-300 ease-out lg:hidden",
+          "fixed inset-y-0 right-0 z-[90] flex w-[min(100vw-3rem,20rem)] flex-col bg-card shadow-2xl transition-transform duration-300 ease-out lg:hidden",
           open ? "translate-x-0" : "pointer-events-none translate-x-full"
         )}
         role="dialog"
@@ -213,7 +215,7 @@ function MobileMenu({
           <button
             type="button"
             onClick={onClose}
-            className="flex h-10 w-10 items-center justify-center rounded-full border border-border bg-card text-foreground hover:bg-beige"
+            className="flex h-10 w-10 items-center justify-center rounded-full border border-border bg-card text-foreground hover:bg-blush/60"
             aria-label="Close menu"
           >
             <X className="h-5 w-5" />
@@ -232,13 +234,15 @@ function MobileMenu({
           {navItems.map((item) => (
             <MobileNavSection key={item.id} item={item} onClose={onClose} />
           ))}
-          <Link
-            href="/contact"
-            onClick={onClose}
-            className="block px-4 py-3 text-sm text-foreground hover:bg-beige"
-          >
-            Contact
-          </Link>
+          {!navItems.some((item) => item.href === "/contact") && (
+            <Link
+              href="/contact"
+              onClick={onClose}
+              className="block px-4 py-3 text-sm text-foreground hover:bg-blush/60"
+            >
+              Contact
+            </Link>
+          )}
         </nav>
       </div>
     </>,
@@ -249,6 +253,8 @@ function MobileMenu({
 export function Navbar() {
   const pathname = usePathname();
   const { itemCount } = useCart();
+  const { itemCount: favoriteCount } = useWishlist();
+  const { user } = useAuth();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [navItems, setNavItems] = useState<NavItem[]>([]);
@@ -275,13 +281,17 @@ export function Navbar() {
     <>
       <header
         className={cn(
-          "sticky top-0 z-50 border-b border-border/60 bg-ivory/95 backdrop-blur-sm transition-shadow",
-          scrolled && "shadow-sm"
+          "sticky top-0 z-50 border-b border-border/45 bg-card/90 backdrop-blur-md transition-shadow",
+          scrolled && "shadow-[0_10px_35px_rgba(45,23,32,0.08)]"
         )}
       >
-        <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
-          <Link href="/" className="font-serif text-2xl tracking-wide text-foreground">
-            Luxe<span className="text-gold">.</span>
+        <div className="mx-auto flex h-[4.5rem] max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
+          <Link
+            href="/"
+            className="font-serif text-xl tracking-[0.04em] text-foreground sm:text-2xl"
+            aria-label="Silk Shadow home"
+          >
+            Silk <span className="italic text-rose">Shadow</span>
           </Link>
 
           <nav className="hidden items-center gap-6 lg:flex">
@@ -298,28 +308,33 @@ export function Navbar() {
             >
               <Search className="h-5 w-5" />
             </Link>
-            <button
-              type="button"
-              className="hidden p-2 text-muted hover:text-foreground sm:block"
-              aria-label="Wishlist"
+            <Link
+              href="/favorites"
+              className="relative p-2 text-muted transition-colors hover:text-rose"
+              aria-label={"Favorites" + (favoriteCount > 0 ? " (" + favoriteCount + ")" : "")}
             >
-              <Heart className="h-5 w-5" />
-            </button>
+              <Heart className={cn("h-5 w-5", favoriteCount > 0 && "fill-rose text-rose")} />
+              {favoriteCount > 0 && (
+                <span className="absolute -right-0.5 -top-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-rose px-1 text-[10px] font-medium text-cream">
+                  {favoriteCount}
+                </span>
+              )}
+            </Link>
             <Link href="/cart" className="relative p-2 text-muted hover:text-foreground">
               <ShoppingBag className="h-5 w-5" />
               {itemCount > 0 && (
-                <span className="absolute -right-0.5 -top-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-gold text-[10px] font-medium text-foreground">
+                <span className="absolute -right-0.5 -top-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-rose text-[10px] font-medium text-cream">
                   {itemCount}
                 </span>
               )}
             </Link>
-            <button
-              type="button"
-              className="hidden p-2 text-muted hover:text-foreground sm:block"
-              aria-label="Account"
+            <Link
+              href={user ? "/account" : "/login"}
+              className={cn("p-2 text-muted transition-colors hover:text-foreground", user && "text-rose")}
+              aria-label={user ? "Account for " + user.name : "Sign in"}
             >
-              <User className="h-5 w-5" />
-            </button>
+              <User className={cn("h-5 w-5", user && "fill-rose/20")} />
+            </Link>
             <button
               type="button"
               className="relative z-[95] p-2 text-foreground lg:hidden"

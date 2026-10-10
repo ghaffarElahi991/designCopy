@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { Minus, Plus, Trash2 } from "lucide-react";
+import { Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useCart } from "@/context/cart-context";
@@ -11,13 +11,20 @@ import { useState } from "react";
 import { validateCoupon } from "@/lib/api";
 import { saveCheckoutCoupon } from "@/lib/checkout";
 import { OrderSummary } from "@/components/checkout/order-summary";
+import { QuantityStepper } from "@/components/ui/quantity-stepper";
 
 export default function CartPage() {
-  const { items, subtotal, updateQuantity, removeItem } = useCart();
+  const { items, subtotal, stock, updateQuantity, removeItem } = useCart();
   const [couponCode, setCouponCode] = useState("");
   const [discount, setDiscount] = useState(0);
   const [couponError, setCouponError] = useState("");
   const [appliedCoupon, setAppliedCoupon] = useState("");
+
+  const quantities = items.reduce<Record<number, number>>((totals, item) => {
+    totals[item.productId] = (totals[item.productId] || 0) + item.quantity;
+    return totals;
+  }, {});
+  const stockUnavailable = items.some((item) => stock[item.productId] === undefined || quantities[item.productId] > stock[item.productId]);
 
   async function applyCoupon() {
     setCouponError("");
@@ -75,27 +82,21 @@ export default function CartPage() {
                     </p>
                   )}
                   <p className="mt-1 text-sm font-medium">{formatPrice(item.price)}</p>
+                  <p className="mt-1 text-xs text-muted" role="status">{stock[item.productId] === undefined ? "Checking availability. If this persists, refresh the page." : stock[item.productId] === 0 ? "Out of stock — please remove this item." : quantities[item.productId] > stock[item.productId] ? `Only ${stock[item.productId]} available across all options. Reduce your quantity.` : quantities[item.productId] >= stock[item.productId] ? "Maximum available quantity reached." : `${stock[item.productId]} available`}</p>
                 </div>
                 <div className="flex items-center justify-between">
-                  <div className="flex items-center rounded-sm border border-border">
-                    <button
-                      className="p-2 hover:bg-beige"
-                      onClick={() =>
-                        updateQuantity(item.productId, item.quantity - 1, item.color, item.size)
-                      }
-                    >
-                      <Minus className="h-3.5 w-3.5" />
-                    </button>
-                    <span className="w-8 text-center text-sm">{item.quantity}</span>
-                    <button
-                      className="p-2 hover:bg-beige"
-                      onClick={() =>
-                        updateQuantity(item.productId, item.quantity + 1, item.color, item.size)
-                      }
-                    >
-                      <Plus className="h-3.5 w-3.5" />
-                    </button>
-                  </div>
+                  <QuantityStepper
+                    value={item.quantity}
+                    compact
+                    decreaseDisabled={item.quantity <= 1}
+                    increaseDisabled={stock[item.productId] === undefined || quantities[item.productId] >= stock[item.productId]}
+                    onDecrease={() =>
+                      updateQuantity(item.productId, item.quantity - 1, item.color, item.size)
+                    }
+                    onIncrease={() =>
+                      updateQuantity(item.productId, item.quantity + 1, item.color, item.size)
+                    }
+                  />
                   <button
                     onClick={() => removeItem(item.productId, item.color, item.size)}
                     className="text-muted hover:text-foreground"
@@ -119,21 +120,24 @@ export default function CartPage() {
           />
 
           <div className="mt-6 border-t border-border pt-6">
-            <label className="mb-2 block text-sm font-medium">Coupon Code</label>
+            <label htmlFor="cart-coupon" className="mb-2 block text-sm font-medium">Coupon Code</label>
             <div className="flex gap-2">
               <Input
+                id="cart-coupon"
+                aria-invalid={Boolean(couponError)}
+                aria-describedby="cart-coupon-feedback"
                 placeholder="WELCOME10"
                 value={couponCode}
                 onChange={(e) => setCouponCode(e.target.value)}
               />
               <Button variant="outline" onClick={applyCoupon}>Apply</Button>
             </div>
-            {couponError && <p className="mt-2 text-xs text-rose">{couponError}</p>}
+            <p id="cart-coupon-feedback" aria-live="polite" aria-atomic="true" className="mt-2 min-h-8 text-xs leading-4 text-rose">{couponError}</p>
           </div>
 
-          <Button asChild variant="gold" size="lg" className="mt-6 w-full">
+          {stockUnavailable ? <Button disabled variant="gold" size="lg" className="mt-6 w-full">Check item availability</Button> : <Button asChild variant="gold" size="lg" className="mt-6 w-full">
             <Link href="/checkout">Proceed to Order</Link>
-          </Button>
+          </Button>}
         </div>
       </div>
     </div>

@@ -11,16 +11,24 @@ import navRoutes from "./routes/nav";
 import paymentsRoutes from "./routes/payments";
 import paymentsWebhookRoutes from "./routes/payments-webhook";
 import tagRoutes from "./routes/tags";
+import newsletterRoutes from "./routes/newsletter";
 import { setupSession } from "./lib/views";
 import { errorHandler, notFoundHandler } from "./middleware/error";
 
+import { requestLogger } from "./middleware/request-logger";
+
 const app = express();
+app.use(requestLogger);
+const frontendUrl = process.env.FRONTEND_URL || "http://localhost:3000";
+const allowedOrigins = (process.env.CORS_ORIGIN || frontendUrl)
+  .split(",")
+  .map((origin) => origin.trim());
 
 setupSession(app);
 
 app.use(
   cors({
-    origin: process.env.CORS_ORIGIN || "http://localhost:3000",
+    origin: allowedOrigins,
     credentials: true,
   })
 );
@@ -30,13 +38,13 @@ app.use(express.urlencoded({ extended: true }));
 
 app.get("/", (_req, res) => {
   res.json({
-    name: "Luxe Fashion API",
+    name: "Silk Shadow API",
     version: "1.0.0",
     status: "running",
     docs: "/api",
     health: "/api/health",
     admin: "/admin",
-    frontend: process.env.CORS_ORIGIN || "http://localhost:3000",
+    frontend: frontendUrl,
   });
 });
 
@@ -80,6 +88,7 @@ app.use("/api/payments", paymentsRoutes);
 app.use("/api/reviews", reviewRoutes);
 app.use("/api/nav", navRoutes);
 app.use("/api/tags", tagRoutes);
+app.use("/api/newsletter", newsletterRoutes);
 app.use("/api/admin", adminRoutes);
 
 app.use(notFoundHandler);

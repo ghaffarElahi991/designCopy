@@ -37,7 +37,7 @@ export function Pagination({ page, totalPages, onPageChange }: PaginationProps) 
             className={cn(
               "flex h-10 w-10 items-center justify-center rounded-sm text-sm transition-colors",
               page === p
-                ? "bg-gold text-foreground"
+                ? "bg-gold text-cream"
                 : "text-muted hover:bg-beige hover:text-foreground"
             )}
           >

@@ -23,7 +23,7 @@ export function FeaturedCategories({ categories }: { categories: ShopCategory[] 
           <Link
             key={cat.id}
             href={cat.href}
-            className="group relative aspect-[4/5] overflow-hidden rounded-sm bg-beige shadow-sm transition-shadow hover:shadow-lg"
+            className="group relative aspect-[4/5] overflow-hidden rounded-sm bg-beige shadow-[0_12px_30px_rgba(45,23,32,0.08)] ring-1 ring-border/50 transition-shadow hover:shadow-xl"
           >
             <Image
               src={cat.imageUrl}
@@ -32,7 +32,7 @@ export function FeaturedCategories({ categories }: { categories: ShopCategory[] 
               className="object-cover transition-transform duration-500 group-hover:scale-105"
               sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 16vw"
             />
-            <div className="absolute inset-0 bg-gradient-to-t from-foreground/70 via-foreground/20 to-transparent" />
+            <div className="absolute inset-0 bg-gradient-to-t from-foreground/85 via-foreground/20 to-transparent" />
             <div className="absolute inset-x-0 bottom-0 p-3 sm:p-4">
               <h3 className="font-serif text-base leading-tight text-cream sm:text-lg">
                 {cat.label}

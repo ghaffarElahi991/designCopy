@@ -229,7 +229,7 @@ export function ShopFilters({
             <SlidersHorizontal className="h-3.5 w-3.5" />
             Filters
             {activeCount > 0 && (
-              <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-gold px-1.5 text-[10px] font-medium text-foreground">
+              <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-gold px-1.5 text-[10px] font-medium text-cream">
                 {activeCount}
               </span>
             )}

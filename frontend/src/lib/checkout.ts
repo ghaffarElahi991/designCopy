@@ -10,16 +10,6 @@ export function calculateShipping(subtotal: number) {
 
 export const PAYMENT_METHODS = [
   {
-    id: "BANK_TRANSFER" as const,
-    label: "Bank Transfer",
-    description: "Pay via wire transfer. Instructions sent after you place your order.",
-  },
-  {
-    id: "WHATSAPP" as const,
-    label: "WhatsApp",
-    description: "Complete payment through our WhatsApp concierge team.",
-  },
-  {
     id: "CARD" as const,
     label: "Credit / Debit Card",
     description: "Pay securely online with Stripe checkout.",
@@ -62,7 +52,7 @@ export const EMPTY_CHECKOUT: CheckoutFormData = {
   billingState: "",
   billingCountry: "",
   billingPostalCode: "",
-  paymentMethod: "WHATSAPP",
+  paymentMethod: "CARD",
   orderNotes: "",
 };
 

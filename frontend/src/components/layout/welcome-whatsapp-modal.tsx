@@ -61,14 +61,14 @@ export function WelcomeWhatsAppModal() {
           <X className="h-5 w-5 stroke-[2.5]" />
         </button>
 
-        <div className="overflow-hidden rounded-sm border border-border/80 bg-card shadow-2xl">
+        <div className="max-h-[calc(100dvh-2rem)] overflow-y-auto overscroll-contain rounded-sm border border-border/80 bg-card shadow-2xl">
           {/* Header */}
           <div className="relative overflow-hidden bg-gradient-to-br from-blush/40 via-ivory to-cream px-6 pb-8 pt-10 text-center sm:px-8 sm:pt-12">
             <div className="pointer-events-none absolute -left-10 top-0 h-32 w-32 rounded-full bg-rose/20 blur-3xl" />
             <div className="pointer-events-none absolute -right-6 bottom-0 h-28 w-28 rounded-full bg-gold/15 blur-3xl" />
 
             <p className="relative text-[10px] uppercase tracking-[0.4em] text-muted">
-              Luxe Fashion
+              Silk Shadow
             </p>
             <h2
               id="welcome-modal-title"
@@ -114,7 +114,7 @@ export function WelcomeWhatsAppModal() {
               <Button
                 asChild
                 size="lg"
-                className="h-12 w-full bg-[#25D366] text-sm font-medium tracking-wide text-white shadow-md hover:bg-[#1da851]"
+                className="h-12 w-full bg-[#25D366] text-sm font-medium tracking-wide text-foreground shadow-md hover:bg-[#1da851]"
               >
                 <Link
                   href={siteContact.whatsappCustomOrderUrl}

@@ -22,7 +22,7 @@ export function OrderSummary({
   const total = Math.max(subtotal + shippingCost - discount, 0);
 
   return (
-    <div className="h-fit rounded-sm border border-border bg-card p-6 shadow-sm">
+    <div className="h-fit lg:sticky lg:top-24 rounded-sm border border-border bg-card p-6 shadow-sm">
       <h2 className="font-serif text-xl">Order Summary</h2>
 
       {showItems && (
@@ -44,6 +44,7 @@ export function OrderSummary({
               <div className="flex flex-1 justify-between gap-2">
                 <div>
                   <p className="line-clamp-2 leading-snug">{item.name}</p>
+                  <p className="text-xs text-muted">{[item.color, item.size].filter(Boolean).join(" / ")}</p>
                   <p className="text-xs text-muted">Qty {item.quantity}</p>
                 </div>
                 <span className="shrink-0">{formatPrice(item.price * item.quantity)}</span>

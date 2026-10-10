@@ -1,14 +1,14 @@
 "use client";
 
 import { Suspense, useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Check, ChevronLeft, ChevronRight } from "lucide-react";
 import { OrderSummary } from "@/components/checkout/order-summary";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { useAuth } from "@/context/auth-context";
 import { useCart } from "@/context/cart-context";
-import { createOrder, createStripeCheckoutSession, getPaymentConfig } from "@/lib/api";
+import { createStripeCheckoutSession, getPaymentConfig } from "@/lib/api";
 import {
   EMPTY_CHECKOUT,
   loadCheckoutCoupon,
@@ -16,14 +16,14 @@ import {
   saveLastOrder,
   type CheckoutFormData,
 } from "@/lib/checkout";
-import { siteContact } from "@/lib/site";
+import { COUNTRIES } from "@/lib/countries";
 import { cn } from "@/lib/utils";
 
 const STEPS = ["Shipping", "Billing", "Payment", "Review"] as const;
 
 function CheckoutForm() {
-  const router = useRouter();
-  const { items, subtotal, clearCart } = useCart();
+  const { items, subtotal } = useCart();
+  const { token } = useAuth();
   const [step, setStep] = useState(0);
   const [form, setForm] = useState<CheckoutFormData>(EMPTY_CHECKOUT);
   const [coupon, setCoupon] = useState<{ code: string; discount: number } | null>(null);
@@ -34,14 +34,7 @@ function CheckoutForm() {
   useEffect(() => {
     setCoupon(loadCheckoutCoupon());
     getPaymentConfig()
-      .then((cfg) => {
-        setStripeEnabled(cfg.stripeEnabled);
-        if (!cfg.stripeEnabled) {
-          setForm((prev) =>
-            prev.paymentMethod === "CARD" ? { ...prev, paymentMethod: "WHATSAPP" } : prev
-          );
-        }
-      })
+      .then((cfg) => setStripeEnabled(cfg.stripeEnabled))
       .catch(() => setStripeEnabled(false));
   }, []);
 
@@ -49,24 +42,8 @@ function CheckoutForm() {
     setForm((prev) => ({ ...prev, ...patch }));
   }
 
-  function canContinue() {
-    if (step === 0) {
-      return (
-        form.customerName.trim() &&
-        form.customerEmail.trim() &&
-        form.customerPhone.trim() &&
-        form.shippingAddress.trim() &&
-        form.city.trim() &&
-        form.country.trim()
-      );
-    }
-    if (step === 1 && !form.billingSameAsShipping) {
-      return form.billingAddress.trim() && form.billingCity.trim() && form.billingCountry.trim();
-    }
-    return true;
-  }
-
   async function placeOrder() {
+    if (loading) return;
     setLoading(true);
     setError("");
 
@@ -98,23 +75,14 @@ function CheckoutForm() {
     };
 
     try {
-      if (form.paymentMethod === "CARD" && stripeEnabled) {
-        const { url, order } = await createStripeCheckoutSession(payload);
-        saveLastOrder(order);
-        window.location.href = url;
-        return;
+      if (!stripeEnabled) {
+        throw new Error("Card payments are currently unavailable");
       }
 
-      const order = await createOrder({
-        ...payload,
-        paymentMethod: form.paymentMethod,
-      });
-
+      const { url, order } = await createStripeCheckoutSession(payload, token);
       saveLastOrder(order);
-      clearCart();
-      router.push(
-        `/checkout/success?orderNumber=${encodeURIComponent(order.orderNumber)}&email=${encodeURIComponent(form.customerEmail)}`
-      );
+      window.location.href = url;
+      return;
     } catch (err) {
       setError(err instanceof Error ? err.message : "Checkout failed");
     } finally {
@@ -146,12 +114,14 @@ function CheckoutForm() {
         </Link>
 
         <h1 className="mt-4 font-serif text-3xl sm:text-4xl">Checkout</h1>
+        <p className="mt-2 text-sm text-muted">A few details, then you’re ready to pay. Fields marked * are required.</p>
 
         {/* Step indicator */}
         <ol className="mt-8 flex flex-wrap gap-2 sm:gap-4">
           {STEPS.map((label, i) => (
             <li
               key={label}
+              aria-current={i === step ? "step" : undefined}
               className={cn(
                 "flex items-center gap-2 text-xs uppercase tracking-wider sm:text-sm",
                 i <= step ? "text-foreground" : "text-muted"
@@ -160,84 +130,97 @@ function CheckoutForm() {
               <span
                 className={cn(
                   "flex h-7 w-7 items-center justify-center rounded-full border text-xs font-medium",
-                  i < step && "border-gold bg-gold text-foreground",
+                  i < step && "border-gold bg-gold text-cream",
                   i === step && "border-gold bg-gold/10 text-foreground",
                   i > step && "border-border"
                 )}
               >
                 {i < step ? <Check className="h-3.5 w-3.5" /> : i + 1}
               </span>
-              <span className="hidden sm:inline">{label}</span>
+              <span>{label}</span>
             </li>
           ))}
         </ol>
 
         <div className="mt-10 grid gap-10 lg:grid-cols-[1fr_360px]">
-          <div className="rounded-sm border border-border bg-card p-6 shadow-sm">
+          <form className="rounded-sm border border-border bg-card p-5 shadow-sm sm:p-8"
+            aria-label={`${STEPS[step]} details`}
+            onSubmit={(event) => {
+              event.preventDefault();
+              if (step < STEPS.length - 1) setStep(step + 1);
+              else void placeOrder();
+            }}
+          >
             {step === 0 && (
               <div className="space-y-5">
                 <h2 className="font-serif text-xl">Shipping details</h2>
                 <div className="grid gap-5 sm:grid-cols-2">
                   <div className="sm:col-span-2">
-                    <label className="mb-2 block text-sm font-medium">Full Name</label>
-                    <Input
-                      required
+                    <label htmlFor="customerName" className="mb-2 block text-sm font-medium">Full Name *</label>
+                    <Input id="customerName" name="customerName" autoComplete="shipping name" minLength={2} pattern=".*\S.*"
+required
                       value={form.customerName}
                       onChange={(e) => updateForm({ customerName: e.target.value })}
                     />
                   </div>
                   <div>
-                    <label className="mb-2 block text-sm font-medium">Email</label>
-                    <Input
-                      type="email"
+                    <label htmlFor="customerEmail" className="mb-2 block text-sm font-medium">Email *</label>
+                    <Input id="customerEmail" name="customerEmail" autoComplete="email"
+type="email"
                       required
                       value={form.customerEmail}
                       onChange={(e) => updateForm({ customerEmail: e.target.value })}
                     />
                   </div>
                   <div>
-                    <label className="mb-2 block text-sm font-medium">Phone / WhatsApp</label>
-                    <Input
-                      required
+                    <label htmlFor="customerPhone" className="mb-2 block text-sm font-medium">Phone / WhatsApp *</label>
+                    <Input id="customerPhone" name="customerPhone" autoComplete="tel" type="tel" inputMode="tel" maxLength={30} pattern="[+0-9().\-\s]{7,30}" title="Enter a phone number with 7–15 digits; include your country code for international delivery." aria-describedby="phone-help"
+required
                       value={form.customerPhone}
-                      onChange={(e) => updateForm({ customerPhone: e.target.value })}
+                      onChange={(e) => {
+                        const value = e.target.value;
+                        const digits = value.replace(/\D/g, "").length;
+                        e.target.setCustomValidity(value && (digits < 7 || digits > 15) ? "Enter a phone number with 7–15 digits." : "");
+                        updateForm({ customerPhone: value });
+                      }}
                     />
+                    <p id="phone-help" className="mt-2 text-xs text-muted">Include your country code, e.g. +1 202 555 0123. Used for delivery updates.</p>
                   </div>
                   <div className="sm:col-span-2">
-                    <label className="mb-2 block text-sm font-medium">Street Address</label>
-                    <Input
-                      required
+                    <label htmlFor="shippingAddress" className="mb-2 block text-sm font-medium">Street Address *</label>
+                    <Input id="shippingAddress" name="shippingAddress" autoComplete="shipping street-address" minLength={5} pattern=".*\S.*"
+required
                       value={form.shippingAddress}
                       onChange={(e) => updateForm({ shippingAddress: e.target.value })}
                     />
                   </div>
                   <div>
-                    <label className="mb-2 block text-sm font-medium">City</label>
-                    <Input
-                      required
+                    <label htmlFor="city" className="mb-2 block text-sm font-medium">City *</label>
+                    <Input id="city" name="city" autoComplete="shipping address-level2" minLength={2} pattern=".*\S.*"
+required
                       value={form.city}
                       onChange={(e) => updateForm({ city: e.target.value })}
                     />
                   </div>
                   <div>
-                    <label className="mb-2 block text-sm font-medium">State / Province</label>
-                    <Input
-                      value={form.state}
+                    <label htmlFor="state" className="mb-2 block text-sm font-medium">State / Province (optional)</label>
+                    <Input id="state" name="state" autoComplete="shipping address-level1"
+value={form.state}
                       onChange={(e) => updateForm({ state: e.target.value })}
                     />
                   </div>
                   <div>
-                    <label className="mb-2 block text-sm font-medium">Country</label>
-                    <Input
-                      required
-                      value={form.country}
-                      onChange={(e) => updateForm({ country: e.target.value })}
-                    />
+                    <label htmlFor="country" className="mb-2 block text-sm font-medium">Country *</label>
+                    <select id="country" name="country" autoComplete="shipping country-name" required value={form.country} onChange={(e) => updateForm({ country: e.target.value })}
+                      className="h-11 w-full rounded-sm border border-border bg-card px-3 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold">
+                      <option value="">Select country / region</option>
+                      {COUNTRIES.map((country) => <option key={country.code} value={country.name}>{country.name}</option>)}
+                    </select>
                   </div>
                   <div>
-                    <label className="mb-2 block text-sm font-medium">Postal Code</label>
-                    <Input
-                      value={form.postalCode}
+                    <label htmlFor="postalCode" className="mb-2 block text-sm font-medium">Postal Code (optional)</label>
+                    <Input id="postalCode" name="postalCode" autoComplete="shipping postal-code"
+value={form.postalCode}
                       onChange={(e) => updateForm({ postalCode: e.target.value })}
                     />
                   </div>
@@ -261,42 +244,42 @@ function CheckoutForm() {
                 {!form.billingSameAsShipping && (
                   <div className="grid gap-5 sm:grid-cols-2">
                     <div className="sm:col-span-2">
-                      <label className="mb-2 block text-sm font-medium">Billing Address</label>
-                      <Input
-                        required
+                      <label htmlFor="billingAddress" className="mb-2 block text-sm font-medium">Billing Address *</label>
+                    <Input id="billingAddress" name="billingAddress" autoComplete="billing street-address" minLength={5} pattern=".*\S.*"
+required
                         value={form.billingAddress}
                         onChange={(e) => updateForm({ billingAddress: e.target.value })}
-                      />
+                    />
                     </div>
                     <div>
-                      <label className="mb-2 block text-sm font-medium">City</label>
-                      <Input
-                        required
+                      <label htmlFor="billingCity" className="mb-2 block text-sm font-medium">City *</label>
+                    <Input id="billingCity" name="billingCity" autoComplete="billing address-level2" minLength={2} pattern=".*\S.*"
+required
                         value={form.billingCity}
                         onChange={(e) => updateForm({ billingCity: e.target.value })}
-                      />
+                    />
                     </div>
                     <div>
-                      <label className="mb-2 block text-sm font-medium">State / Province</label>
-                      <Input
-                        value={form.billingState}
+                      <label htmlFor="billingState" className="mb-2 block text-sm font-medium">State / Province (optional)</label>
+                    <Input id="billingState" name="billingState" autoComplete="billing address-level1"
+value={form.billingState}
                         onChange={(e) => updateForm({ billingState: e.target.value })}
-                      />
+                    />
                     </div>
                     <div>
-                      <label className="mb-2 block text-sm font-medium">Country</label>
-                      <Input
-                        required
-                        value={form.billingCountry}
-                        onChange={(e) => updateForm({ billingCountry: e.target.value })}
-                      />
+                      <label htmlFor="billingCountry" className="mb-2 block text-sm font-medium">Country *</label>
+                    <select id="billingCountry" name="billingCountry" autoComplete="billing country-name" required value={form.billingCountry} onChange={(e) => updateForm({ billingCountry: e.target.value })}
+                      className="h-11 w-full rounded-sm border border-border bg-card px-3 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold">
+                      <option value="">Select country / region</option>
+                      {COUNTRIES.map((country) => <option key={country.code} value={country.name}>{country.name}</option>)}
+                    </select>
                     </div>
                     <div>
-                      <label className="mb-2 block text-sm font-medium">Postal Code</label>
-                      <Input
-                        value={form.billingPostalCode}
+                      <label htmlFor="billingPostalCode" className="mb-2 block text-sm font-medium">Postal Code (optional)</label>
+                    <Input id="billingPostalCode" name="billingPostalCode" autoComplete="billing postal-code"
+value={form.billingPostalCode}
                         onChange={(e) => updateForm({ billingPostalCode: e.target.value })}
-                      />
+                    />
                     </div>
                   </div>
                 )}
@@ -307,7 +290,7 @@ function CheckoutForm() {
               <div className="space-y-5">
                 <h2 className="font-serif text-xl">Payment method</h2>
                 <div className="space-y-3">
-                  {PAYMENT_METHODS.filter((method) => stripeEnabled || method.id !== "CARD").map((method) => (
+                  {PAYMENT_METHODS.map((method) => (
                     <label
                       key={method.id}
                       className={cn(
@@ -334,8 +317,8 @@ function CheckoutForm() {
                 </div>
 
                 <div>
-                  <label className="mb-2 block text-sm font-medium">Order notes (optional)</label>
-                  <textarea
+                  <label htmlFor="orderNotes" className="mb-2 block text-sm font-medium">Order notes (optional)</label>
+                  <textarea id="orderNotes" name="orderNotes" maxLength={1000}
                     rows={3}
                     placeholder="Special instructions, gift message, preferred delivery time..."
                     value={form.orderNotes}
@@ -355,6 +338,7 @@ function CheckoutForm() {
                     <h3 className="text-xs font-medium uppercase tracking-wider text-muted">
                       Shipping to
                     </h3>
+                    <button type="button" disabled={loading} onClick={() => setStep(0)} className="mt-2 underline underline-offset-4">Edit shipping</button>
                     <p className="mt-2">{form.customerName}</p>
                     <p className="text-muted">{form.customerEmail}</p>
                     <p className="text-muted">{form.customerPhone}</p>
@@ -366,6 +350,12 @@ function CheckoutForm() {
                   </section>
 
                   <section className="rounded-sm bg-ivory/60 p-4">
+                    <h3 className="text-xs font-medium uppercase tracking-wider text-muted">Billing address</h3>
+                    <p className="mt-2">{form.billingSameAsShipping ? "Same as shipping address" : [form.billingAddress, form.billingCity, form.billingState, form.billingCountry, form.billingPostalCode].filter(Boolean).join(", ")}</p>
+                    <button type="button" disabled={loading} onClick={() => setStep(1)} className="mt-2 underline underline-offset-4">Edit billing</button>
+                  </section>
+                  {form.orderNotes && <section className="rounded-sm bg-ivory/60 p-4"><h3 className="font-medium">Order notes</h3><p className="mt-2 whitespace-pre-wrap">{form.orderNotes}</p></section>}
+                  <section className="rounded-sm bg-ivory/60 p-4">
                     <h3 className="text-xs font-medium uppercase tracking-wider text-muted">
                       Payment
                     </h3>
@@ -375,56 +365,43 @@ function CheckoutForm() {
                   </section>
                 </div>
 
-                {error && <p className="text-sm text-rose">{error}</p>}
+                {error && <p role="alert" className="text-sm text-rose">{error}</p>}
 
                 <p className="text-xs text-muted">
                   By placing your order, you agree to be contacted regarding payment and shipping.
-                  {form.paymentMethod === "CARD" && stripeEnabled && (
-                    <> You will be redirected to Stripe to complete payment securely.</>
-                  )}
-                  {form.paymentMethod === "WHATSAPP" && (
-                    <>
-                      {" "}
-                      We may reach you on WhatsApp at {siteContact.whatsappDisplay}.
-                    </>
-                  )}
+                  {stripeEnabled
+                    ? " You will be redirected to Stripe to complete payment securely."
+                    : " Card payments are currently unavailable."}
                 </p>
               </div>
             )}
 
             <div className="mt-8 flex flex-wrap gap-3">
               {step > 0 && (
-                <Button type="button" variant="outline" onClick={() => setStep(step - 1)}>
+                <Button type="button" variant="outline" disabled={loading} onClick={() => setStep(step - 1)}>
                   <ChevronLeft className="h-4 w-4" />
                   Back
                 </Button>
               )}
               {step < STEPS.length - 1 ? (
                 <Button
-                  type="button"
+                  type="submit"
                   variant="gold"
-                  disabled={!canContinue()}
-                  onClick={() => setStep(step + 1)}
                 >
                   Continue
                   <ChevronRight className="h-4 w-4" />
                 </Button>
               ) : (
                 <Button
-                  type="button"
+                  type="submit"
                   variant="gold"
-                  disabled={loading}
-                  onClick={placeOrder}
+                  disabled={loading || !stripeEnabled}
                 >
-                  {loading
-                    ? "Processing..."
-                    : form.paymentMethod === "CARD" && stripeEnabled
-                      ? "Pay securely"
-                      : "Place order"}
+                  {loading ? "Processing..." : stripeEnabled ? "Pay securely" : "Card unavailable"}
                 </Button>
               )}
             </div>
-          </div>
+          </form>
 
           <OrderSummary
             items={items}
